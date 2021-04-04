@@ -10,18 +10,17 @@ fn main() {
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
     let pool = ThreadPool::new(4);
 
-    // println!("Begun listening on 127.0.0.1:7878");
+    println!("Begun listening on 127.0.0.1:7878");
 
-    for stream in listener.incoming() {
+    for stream in listener.incoming().take(2) {
         let stream = stream.unwrap();
 
-        println!("Established connection!");
         pool.execute(|| {
             handle_connection(stream);  
         });
     }
 
-    println!("Hello, world!");
+    println!("Shutting down.");
 }
 
 
