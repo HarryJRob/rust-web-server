@@ -4,17 +4,21 @@ use std::net::TcpStream;
 use std::fs;
 use std::thread;
 use std::time::Duration;
+use rust_web::ThreadPool;
 
 fn main() {
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
+    let pool = ThreadPool::new(4);
 
-    println!("Begun listening on 127.0.0.1:7878");
+    // println!("Begun listening on 127.0.0.1:7878");
 
     for stream in listener.incoming() {
         let stream = stream.unwrap();
 
         println!("Established connection!");
-        handle_connection(stream);
+        pool.execute(|| {
+            handle_connection(stream);  
+        });
     }
 
     println!("Hello, world!");
@@ -25,7 +29,7 @@ fn handle_connection(mut stream: TcpStream) {
     let mut buffer = [0; 1024];
     stream.read(&mut buffer).unwrap();
     
-    println!("Request: {}", String::from_utf8_lossy(&buffer[..]));
+    // println!("Request: {}", String::from_utf8_lossy(&buffer[..]));
     
     let get = b"GET / HTTP/1.1\r\n";
     let sleep = b"GET /sleep HTTP/1.1\r\n";
